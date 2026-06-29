@@ -32,16 +32,22 @@ Multi AZ setup for DR (Disaster Recovery)
 
 Cost-effectiveness.
 
+---
+<br></br>
+
 
 ## Features
 <img width="911" height="641" alt="image" src="https://github.com/user-attachments/assets/6029a2fc-3a04-4891-b155-24a06a00a448" />
 
+
+<br></br>
 
 
 
 ## RDS Read Replica - Multi Region
 <img width="890" height="507" alt="image" src="https://github.com/user-attachments/assets/2826c40a-ef52-409a-bd0e-38c0f92dd277" />
 
+<br></br>
 
 
 
@@ -49,12 +55,14 @@ Cost-effectiveness.
 <img width="727" height="671" alt="image" src="https://github.com/user-attachments/assets/a0edc89e-194c-4912-9022-398fafd2113c" />
 
 
+<br></br>
 
 
 ## RDS  Multi - AZ
 
 <img width="759" height="684" alt="image" src="https://github.com/user-attachments/assets/758c45b3-dc89-4605-811d-12706c3152b3" />
 
+<br></br>
 
 
 
