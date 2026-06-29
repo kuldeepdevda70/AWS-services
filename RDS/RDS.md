@@ -35,6 +35,26 @@ Cost-effectiveness.
 ---
 <br></br>
 
+## What is the difference between an RDS Snapshot and an Automated Backup?
+Amazon RDS provides two backup options: Automated Backups and Manual Snapshots.
+
+### Automated Backup:
+
+1. Enabled by AWS when you configure the backup retention period.
+2. AWS automatically takes daily backups and stores transaction logs.
+3. You can restore the database to any point in time within the configured retention period (0–35 days).
+4. When the retention period expires, older backups are automatically deleted.
+
+
+### Manual Snapshot:
+
+1. Created manually whenever needed.
+2. Used before major changes such as database upgrades, migrations, or deletion.
+3. A manual snapshot remains available until you delete it.
+4. You can restore a new RDS instance from the snapshot at any time.
+
+In short: Automated Backups are for disaster recovery and point-in-time recovery, while Manual Snapshots are for long-term backups or before important changes.
+
 
 ## Features
 <img width="911" height="641" alt="image" src="https://github.com/user-attachments/assets/6029a2fc-3a04-4891-b155-24a06a00a448" />
