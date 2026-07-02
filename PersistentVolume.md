@@ -1,23 +1,59 @@
-# Persistent Volume (PV) and Persistent Volume Claim (PVC)
+# Kubernetes Persistent Volume (PV), Persistent Volume Claim (PVC), and Deployment
 
-## What is a Persistent Volume (PV)?
+## Architecture
 
-A **Persistent Volume (PV)** is a storage resource in the Kubernetes cluster that is created by the administrator. It provides permanent storage for applications.
+```
+                +----------------------+
+                |      Deployment      |
+                |    (nginx Pods)      |
+                +----------+-----------+
+                           |
+                           | Uses
+                           ▼
+                +----------------------+
+                | Persistent Volume    |
+                | Claim (local-pvc)    |
+                +----------+-----------+
+                           |
+                           | Binds to
+                           ▼
+                +----------------------+
+                | Persistent Volume    |
+                |     (local-pv)       |
+                +----------+-----------+
+                           |
+                           | Stores data in
+                           ▼
+                     /mnt/data
+                     (Host Machine)
+```
 
-### My PV Configuration
+---
+
+# 1. Persistent Volume (PV)
+
+A **Persistent Volume (PV)** is the actual storage available in the Kubernetes cluster. It is created by the cluster administrator and provides storage for applications.
+
+## Configuration
 
 ```yaml
 kind: PersistentVolume
 apiVersion: v1
+
 metadata:
   name: local-pv
+
 spec:
   capacity:
     storage: 1Gi
+
   accessModes:
     - ReadWriteOnce
+
   persistentVolumeReclaimPolicy: Retain
+
   storageClassName: local-storage
+
   hostPath:
     path: /mnt/data
 ```
@@ -25,80 +61,190 @@ spec:
 ### Explanation
 
 | Field | Description |
-|-------|-------------|
-| `kind: PersistentVolume` | Creates a Persistent Volume. |
-| `apiVersion: v1` | Uses Kubernetes Core API. |
-| `name: local-pv` | Name of the Persistent Volume. |
-| `capacity.storage: 1Gi` | Total storage available is **1 GiB**. |
-| `accessModes: ReadWriteOnce` | The volume can be mounted as read-write by only one node. |
-| `persistentVolumeReclaimPolicy: Retain` | Keeps the data even after the PVC is deleted. |
-| `storageClassName: local-storage` | Associates this PV with the `local-storage` StorageClass. |
-| `hostPath: /mnt/data` | Uses the local directory `/mnt/data` on the node as storage. |
+|--------|-------------|
+| `capacity.storage` | Total storage available (1Gi). |
+| `accessModes` | ReadWriteOnce means one node can mount it as read-write. |
+| `storageClassName` | Storage class used for matching with PVC. |
+| `hostPath` | Uses the host directory `/mnt/data` as storage. |
+| `persistentVolumeReclaimPolicy: Retain` | Keeps the data even if the PVC is deleted. |
 
 ---
 
-## What is a Persistent Volume Claim (PVC)?
+# 2. Persistent Volume Claim (PVC)
 
-A **Persistent Volume Claim (PVC)** is a request for storage made by an application. Kubernetes finds a matching PV and binds it to the PVC.
+A **Persistent Volume Claim (PVC)** is a request for storage by an application.
 
-### My PVC Configuration
+## Configuration
 
 ```yaml
 kind: PersistentVolumeClaim
 apiVersion: v1
+
 metadata:
   name: local-pvc
   namespace: nginx
+
 spec:
   accessModes:
     - ReadWriteOnce
+
   resources:
     requests:
       storage: 1Gi
+
   storageClassName: local-storage
 ```
 
 ### Explanation
 
 | Field | Description |
-|-------|-------------|
-| `kind: PersistentVolumeClaim` | Creates a Persistent Volume Claim. |
-| `apiVersion: v1` | Uses Kubernetes Core API. |
-| `name: local-pvc` | Name of the PVC. |
-| `namespace: nginx` | PVC is created inside the `nginx` namespace. |
-| `accessModes: ReadWriteOnce` | Requests read-write access from one node. |
-| `resources.requests.storage: 1Gi` | Requests **1 GiB** of storage. |
-| `storageClassName: local-storage` | Requests a PV with the `local-storage` StorageClass. |
+|--------|-------------|
+| `storage: 1Gi` | Requests 1Gi of storage. |
+| `accessModes` | Requests ReadWriteOnce access. |
+| `storageClassName` | Must match the PV's storage class. |
+
+When the request matches a PV, Kubernetes automatically binds the PVC to the PV.
 
 ---
 
-# How PV and PVC Work Together
+# 3. Deployment
+
+The Deployment creates two Nginx Pods and mounts the storage provided by the PVC.
+
+## Configuration
+
+```yaml
+kind: Deployment
+apiVersion: apps/v1
+
+metadata:
+  name: nginx-deployment
+  namespace: nginx
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: nginx
+
+  template:
+    metadata:
+      labels:
+        app: nginx
+
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+
+          ports:
+            - containerPort: 80
+
+          volumeMounts:
+            - name: my-volume
+              mountPath: /var/www/html
+
+      volumes:
+        - name: my-volume
+          persistentVolumeClaim:
+            claimName: local-pvc
+```
+
+### Explanation
+
+| Field | Description |
+|--------|-------------|
+| `replicas: 2` | Creates two Nginx Pods. |
+| `volumeMounts` | Mounts the storage inside the container. |
+| `mountPath` | Storage is available at `/var/www/html`. |
+| `claimName` | Uses the PVC named `local-pvc`. |
+
+---
+
+# Complete Flow
 
 ```
-Application (Pod)
+Step 1
+Administrator creates PV
         │
         ▼
-Persistent Volume Claim (PVC)
++----------------------+
+| local-pv             |
+| 1Gi Storage          |
+| /mnt/data            |
++----------------------+
+
+        │
+
+Step 2
+Developer creates PVC
         │
         ▼
-Persistent Volume (PV)
++----------------------+
+| local-pvc            |
+| Requests 1Gi         |
+| local-storage        |
++----------------------+
+
+        │
+        │ Kubernetes automatically binds them
+        ▼
+
++----------------------+
+| local-pv             |
++----------------------+
+
+        │
+
+Step 3
+Deployment uses PVC
         │
         ▼
-Host Directory
+
++----------------------+
+| nginx Pod            |
+| /var/www/html        |
++----------------------+
+
+        │
+        ▼
+
+Data is stored in
+
 /mnt/data
+(on the Kubernetes Node)
 ```
 
 ---
 
-# Matching Conditions
+# Why Use PVC Instead of PV Directly?
 
-For a PVC to bind with a PV, the following must match:
+Pods do **not** use a PV directly.
+
+Instead:
+
+```
+Pod
+ ↓
+PVC
+ ↓
+PV
+ ↓
+Actual Storage
+```
+
+This makes applications independent of the underlying storage.
+
+---
+
+# Matching Requirements
+
+A PVC binds to a PV only if these match:
 
 - Storage Class (`local-storage`)
-- Requested Storage (`1Gi`)
+- Storage Size (`1Gi`)
 - Access Mode (`ReadWriteOnce`)
-
-If all these values match, Kubernetes automatically binds the PVC to the PV.
 
 ---
 
@@ -116,6 +262,12 @@ Create PVC
 kubectl apply -f persistentVolumeClaim.yml
 ```
 
+Create Deployment
+
+```bash
+kubectl apply -f deployment.yml
+```
+
 Check PV
 
 ```bash
@@ -126,6 +278,12 @@ Check PVC
 
 ```bash
 kubectl get pvc -n nginx
+```
+
+Check Pods
+
+```bash
+kubectl get pods -n nginx
 ```
 
 Describe PV
@@ -140,13 +298,19 @@ Describe PVC
 kubectl describe pvc local-pvc -n nginx
 ```
 
+Describe Deployment
+
+```bash
+kubectl describe deployment nginx-deployment -n nginx
+```
+
 ---
 
-# Important Notes
+# Interview Summary
 
-- **PV** is the actual storage available in the cluster.
-- **PVC** is a request for that storage.
-- The Pod uses the **PVC**, not the PV directly.
-- Kubernetes automatically connects the PVC to a matching PV.
-- The storage is located at `/mnt/data` on the node because `hostPath` is used.
-- Since the reclaim policy is `Retain`, deleting the PVC does **not** delete the stored data.
+- **Persistent Volume (PV):** The actual storage resource in the cluster.
+- **Persistent Volume Claim (PVC):** A request for storage by an application.
+- **Deployment:** Creates Pods that use the PVC.
+- **volumeMounts:** Specifies where the storage is mounted inside the container.
+- **hostPath:** Stores the data on the Kubernetes node at `/mnt/data`.
+- **Retain Policy:** Keeps the data even after the PVC is deleted.
