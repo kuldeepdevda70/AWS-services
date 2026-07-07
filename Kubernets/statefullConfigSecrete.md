@@ -1077,3 +1077,105 @@ Each Pod gets its own dedicated storage.
 # One-Minute Interview Answer
 
 > StatefulSet is a Kubernetes workload resource used for stateful applications like MySQL. It provides stable Pod names, stable DNS names, and dedicated persistent storage for every Pod. In my project, I deployed MySQL using a StatefulSet with three replicas. I used a ConfigMap to store the database name, a Secret to store the MySQL root password, and a Headless Service to provide stable DNS names. Each Pod received its own PersistentVolumeClaim through `volumeClaimTemplates`, ensuring that data remains available even if a Pod is restarted.
+
+
+
+
+
+
+
+
+
+# Kubernetes Probes (Short Interview Notes)
+
+## What are Probes?
+
+Probes are health checks used by Kubernetes to monitor the status of a container.
+
+They help Kubernetes determine:
+- Is the application started?
+- Is the application alive?
+- Is the application ready to receive traffic?
+
+---
+
+## Types of Probes
+
+### 1. Startup Probe
+
+**Purpose:** Checks if the application has started successfully.
+
+- Used for slow-starting applications.
+- If it fails, Kubernetes restarts the container.
+- Until it succeeds, Liveness and Readiness probes do not run.
+
+**Example:**
+```yaml
+startupProbe:
+  httpGet:
+    path: /
+    port: 80
+```
+
+---
+
+### 2. Liveness Probe
+
+**Purpose:** Checks if the application is still running.
+
+- If the application hangs or crashes, Kubernetes restarts the container.
+
+**Example:**
+```yaml
+livenessProbe:
+  httpGet:
+    path: /
+    port: 80
+```
+
+---
+
+### 3. Readiness Probe
+
+**Purpose:** Checks if the application is ready to receive traffic.
+
+- If it fails, the pod is removed from the Service.
+- The container is **not** restarted.
+
+**Example:**
+```yaml
+readinessProbe:
+  httpGet:
+    path: /
+    port: 80
+```
+
+---
+
+## Difference
+
+| Probe | Checks | On Failure |
+|--------|--------|------------|
+| Startup | App has started | Restart container |
+| Liveness | App is alive | Restart container |
+| Readiness | App is ready for traffic | Stop sending traffic |
+
+---
+
+## Interview Answer
+
+**What are Kubernetes Probes?**
+
+Kubernetes Probes are health checks used to monitor containers.
+
+- **Startup Probe** → Checks if the application has started.
+- **Liveness Probe** → Checks if the application is alive.
+- **Readiness Probe** → Checks if the application is ready to receive traffic.
+
+---
+
+## Memory Trick
+
+- **Startup = Started**
+- **Liveness = Alive**
+- **Readiness = Ready**
