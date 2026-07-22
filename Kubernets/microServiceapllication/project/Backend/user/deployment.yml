@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user
+  namespace: three-tier
+  labels:
+    service: user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: user
+  template:
+    metadata:
+      labels:
+        service: user
+    spec:
+      containers:
+      - name: user
+        image: robotshop/rs-user:latest
+        imagePullPolicy: IfNotPresent
+
+        env:
+        - name: MONGO_HOST
+          value: mongodb
+
+        - name: MONGO_PORT
+          value: "27017"
+
+        - name: MONGO_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongo-sec
+              key: username
+
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-sec
+              key: password
+
+        - name: USER_SERVICE
+          value: user
+
+        - name: INSTANA_AGENT_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+
+        ports:
+        - containerPort: 8080
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 50Mi
+          limits:
+            cpu: 200m
+            memory: 100Mi
+
+      restartPolicy: Always

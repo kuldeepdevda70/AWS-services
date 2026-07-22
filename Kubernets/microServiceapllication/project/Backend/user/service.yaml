@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: user
+  namespace: three-tier
+
+spec:
+  selector:
+    service: user
+
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+
+  type: ClusterIP

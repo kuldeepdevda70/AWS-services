@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: cart
+  namespace: three-tier
+  labels: 
+    role: cart
+    env: demo
+spec: 
+  replicas: 1
+  strategy: 
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 25%
+  selector: 
+    matchLabels:
+      role: cart
+  template:
+    metadata:
+      labels:
+        role: cart
+    spec:
+      imagePullSecrets:
+      - name: ecr-registry-secret
+      containers:
+      - name: cart
+        image: robotshop/rs-cart:latest
+        imagePullPolicy: Always
+        env:
+        - name: REDIS_HOST
+          value: redis
+        - name: REDIS_PORT
+          value: "6379"

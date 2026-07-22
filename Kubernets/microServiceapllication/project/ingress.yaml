@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: backend-ingress
+  namespace: three-tier
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+
+spec:
+  ingressClassName: nginx
+
+  rules:
+  - http:
+      paths:
+
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web
+            port:
+              number: 8080
+
+      - path: /api/user
+        pathType: Prefix
+        backend:
+          service:
+            name: user
+            port:
+              number: 8080
+
+      - path: /api/cart
+        pathType: Prefix
+        backend:
+          service:
+            name: cart
+            port:
+              number: 8080
