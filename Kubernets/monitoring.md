@@ -20,6 +20,10 @@ installs:
 
 Repository: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
+```
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+```
+
 ------------------------------------------------------------------------
 
 # Step 1: Install Helm
