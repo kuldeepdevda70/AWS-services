@@ -12,13 +12,13 @@ A workflow in GitHub Actions is a YAML file that defines an automated process.
 It is stored inside the .github/workflows directory of a repository.  
 A workflow contains jobs and steps that run when specific events occur, like push or pull request.
 
-<img src="./media/image1.png" style="width:5.12572in;height:1.21892in" />
+<img src="image1.png" style="width:5.12572in;height:1.21892in" />
 
 **3)Trigger Configuration:**
 
 This workflow runs automatically when code is pushed to the dev or master branches
 
-<img src="./media/image2.png" style="width:2.08362in;height:1.23976in" />
+<img src="image2.png" style="width:2.08362in;height:1.23976in" />
 
 **4)What are jobs and steps in GitHub Actions?**
 
@@ -27,7 +27,7 @@ Each job can run independently or in sequence with other jobs.
 
 Steps are individual tasks inside a job, such as running a command, installing dependencies, or using an action.
 
-<img src="./media/image3.png" style="width:3.16711in;height:2.18781in" />
+<img src="image3.png" style="width:3.16711in;height:2.18781in" />
 
 **5) What is a runner in GitHub Actions**
 
@@ -49,19 +49,19 @@ The uses keyword is used to reuse existing actions or workflows in GitHub Action
 
 The **with** keyword is used to provide input parameters to an action, allowing customization of its behavior.
 
-<img src="./media/image4.png" style="width:3.16627in;height:2.18723in" />
+<img src="image4.png" style="width:3.16627in;height:2.18723in" />
 
 **8) upload-artifact**
 
 This step uses actions/upload-artifact to store build outputs or files generated during the workflow.
 
-<img src="./media/image5.png" style="width:3.22962in;height:1.25017in" />
+<img src="image5.png" style="width:3.22962in;height:1.25017in" />
 
 **9)Build**
 
 The Build job compiles the application and prepares it for testing, scanning, and deployment.
 
-<img src="./media/image6.png" style="width:3.24003in;height:3.40673in" />
+<img src="image6.png" style="width:3.24003in;height:3.40673in" />
 
 **10) Trivy Security Scan**
 
@@ -71,7 +71,7 @@ The Build job compiles the application and prepares it for testing, scanning, an
 
 **🔹 Configuration**
 
-<img src="./media/image7.png" style="width:3.7401in;height:1.31268in" />
+<img src="image7.png" style="width:3.7401in;height:1.31268in" />
 
 **🔹 Behavior**
 
@@ -103,7 +103,7 @@ Large Trivy reports are analyzed by filtering high and critical vulnerabilities 
 
 is used to analyze the code for code quality issues, bugs, and security vulnerabilities
 
-<img src="./media/image8.png" style="width:7.26806in;height:3.52847in" />
+<img src="image8.png" style="width:7.26806in;height:3.52847in" />
 
 **SONAR_TOKEN:** is a secure authentication token used to connect GitHub Actions with SonarQube.
 
@@ -145,7 +145,7 @@ Copy the following details:
 
 - Enable Required reviewers and add approvers
 
-<img src="./media/image9.png" style="width:4.36519in;height:1.48979in" />
+<img src="image9.png" style="width:4.36519in;height:1.48979in" />
 
 **12)GitHub Secret Management**
 
@@ -175,7 +175,7 @@ Keep sensitive information like:
 
 - Automatically updates the server content and restarts services (e.g., Nginx).
 
-<img src="./media/image10.png" style="width:7.26806in;height:9.34583in" />
+<img src="image10.png" style="width:7.26806in;height:9.34583in" />
 
 - **Needs:** Job will start only after these dependent jobs are complete.
 
